@@ -1,0 +1,11 @@
+[Unit]
+Description=PWM Fan Control
+
+[Service]
+Type=simple
+User=root
+ExecStart=/home/pi/intel_fan_ctrl/fan_ctrl &
+Restart=always
+
+[Install]
+WantedBy=default.target
