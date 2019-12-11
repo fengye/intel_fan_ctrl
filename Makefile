@@ -39,7 +39,8 @@ LDLIBS    = -lwiringPi -lwiringPiDev -lpthread -lm -lcrypt -lrt
 ###############################################################################
 
 SRC	=	fan_ctrl.c			\
-                temperature.c
+		fan_test.c			\
+		temperature.c
 
 OBJ	=	$(SRC:.c=.o)
 
@@ -55,6 +56,11 @@ really-all:	$(BINS)
 fan_ctrl:	fan_ctrl.o
 	$Q echo [link]
 	$Q $(CC) -o $@ fan_ctrl.o $(LDFLAGS) $(LDLIBS)
+
+fan_test:	fan_test.o
+	$Q echo [link]
+	$Q $(CC) -o $@ fan_test.o $(LDFLAGS) $(LDLIBS)
+
 
 temperature:	temperature.o
 	$Q echo [link]

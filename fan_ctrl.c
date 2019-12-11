@@ -3,14 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-// PWM pin only works on 1
-#define PWM 1
-// Raspberry Pi 4 has a PWM clock hardware of 54MHz. In order to make 25KHz Intel CPU fan control signal
-// we have to divide it by 16, and make the range [0, 135]. Thus 54M / 16 / 135 = 25K
-// Other model of Raspberry Pi need to adjust those two values based on their hardward respectively
-#define PWM_RANGE 135
-#define PWM_DIVISOR 16
+#include <string.h>
+#include "get_model.h"
 
+// Raspberry Pi only has WiringPI 1 enabled as PWM pin
+#define PWM 1
 
 #ifndef max
 #define max(a,b)            (((a) > (b)) ? (a) : (b))
@@ -20,13 +17,21 @@
 #define min(a,b)            (((a) < (b)) ? (a) : (b))
 #endif
 
-static int SPEED_RANGE[] = {40, 135};
-static int TEMP_RANGE[] = {35000, 70000};
+
+static const int TEMP_RANGE[] = {35000, 70000};
+
 int main (void)
 {
+  const int model = get_raspi_model();
+  if (model == RPi_Unknown)
+  {
+    fprintf(stderr, "Unknown Raspberry Pi model, exit.\n");
+    exit(-1);
+  }
   char sbuf[256] = {0};
 
-  printf ("Raspberry Pi +  wiringPi for Intel stock CPU fan control\n") ;
+  printf("Raspberry Pi wiringPi for Intel stock CPU fan control\n");
+  printf("Detected model: %s\n", RaspiNames[model]) ;
 
   if (wiringPiSetup () == -1)
     exit (1) ;
@@ -34,11 +39,11 @@ int main (void)
   pinMode (PWM, PWM_OUTPUT) ;
   pwmSetMode(PWM_MODE_MS);
 
-  pwmSetRange(PWM_RANGE);
-  pwmSetClock(PWM_DIVISOR);
+  pwmSetRange(PWM_HIGH_RANGES[model]);
+  pwmSetClock(PWM_DIVISORS[model]);
 
   int speed = 0;
-  const int speed_range = SPEED_RANGE[1] - SPEED_RANGE[0];
+  const int speed_range = PWM_HIGH_RANGES[model] - PWM_LOW_RANGES[model];
   const int temp_range = TEMP_RANGE[1] - TEMP_RANGE[0];
 
   for (;;)
@@ -50,7 +55,7 @@ int main (void)
       int temp = atoi(sbuf);
       float interpo = (float)(temp - TEMP_RANGE[0]) / (float)temp_range; 
       interpo = min(max(0.0f, interpo), 1.0f);
-      speed = min(SPEED_RANGE[0] + (int)(interpo * speed_range), SPEED_RANGE[1]);
+      speed = min(PWM_LOW_RANGES[model] + (int)(interpo * speed_range), PWM_HIGH_RANGES[model]);
       pwmWrite(PWM, speed);
       fprintf(stdout, "\rTemp(C): %.2f\t Fan: %d", (float)(temp/1000.0f), speed);
       fclose(fp);
@@ -58,6 +63,7 @@ int main (void)
     else
     {
       fprintf(stderr, "Error opening system file.\n");
+      exit(-1);
     }
     fflush(stdout);
     delay(1000);
