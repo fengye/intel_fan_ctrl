@@ -44,13 +44,14 @@ const char* RaspiNames[] = {
 #define BUF_LEN 256
 #define BUF_MAX 255
 
+const char* SYS_MODEL_INFO_FILE = "/sys/firmware/devicetree/base/model";
 
 int get_raspi_model()
 {
-  FILE* cpuinfo_fp = fopen("/proc/cpuinfo", "rb");
+  FILE* cpuinfo_fp = fopen(SYS_MODEL_INFO_FILE, "rb");
   if (!cpuinfo_fp)
   {
-    fprintf(stderr, "Cannot open /proc/cpuinfo, exiting\n");
+    fprintf(stderr, "Cannot open %s, exiting\n", SYS_MODEL_INFO_FILE);
     return RPi_Unknown;
   }
 
@@ -68,14 +69,14 @@ int get_raspi_model()
   {
     pch = strtok(NULL, " ,:-");
   }
-  if (strcmp(tokens[1], "Raspberry") == 0 &&
-      strcmp(tokens[2], "Pi") == 0)
+  if (strcmp(tokens[0], "Raspberry") == 0 &&
+      strcmp(tokens[1], "Pi") == 0)
   {
-     if (strcmp(tokens[3], "1") == 0)
+     if (strcmp(tokens[2], "1") == 0)
      {
         return RPi_1;
      }
-     else if (strcmp(tokens[3], "2") == 0)
+     else if (strcmp(tokens[2], "2") == 0)
      {
         return RPi_2;
      }
@@ -83,7 +84,7 @@ int get_raspi_model()
      {
         return RPi_3;
      }
-     else if (strcmp(tokens[3], "4") == 0)
+     else if (strcmp(tokens[4], "4") == 0)
      {
         return RPi_4;
      }
