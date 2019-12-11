@@ -80,11 +80,11 @@ int get_raspi_model()
      {
         return RPi_2;
      }
-     else if (strcmp(tokens[3], "3") == 0)
+     else if (strcmp(tokens[2], "3") == 0)
      {
         return RPi_3;
      }
-     else if (strcmp(tokens[4], "4") == 0)
+     else if (strcmp(tokens[2], "4") == 0)
      {
         return RPi_4;
      }
