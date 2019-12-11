@@ -1,6 +1,6 @@
 Raspberry Pi Air Cooling using Intel stock CPU fan 
 ==================================================
-Tested on Raspberry Pi 4 running Raspbian busty.
+Tested on Raspberry Pi 2B/3B/4B running Raspbian busty and stretch.
 CPU fan used is FANINT1150[Intel Original CPU Fan (OEM Package) for Socket LGA1151/1150], which is 12V based but running fine on Raspberry Pi's 5V GPIO.
 
 Hardware Wiring
